@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (C) 2024 TechNexion Ltd. - https://www.technexion.com/
+#
+
+choice
+	prompt "TechNexion ROVY-4VM"
+	optional
+
+config TARGET_ROVY_4VM_A72
+	bool "TechNexion ROVY-4VM running on A72"
+	select ARM64
+	select SOC_K3_J721E
+	select BOARD_LATE_INIT
+	select SYS_DISABLE_DCACHE_OPS
+
+config TARGET_ROVY_4VM_R5
+	bool "TechNexion ROVY-4VM running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select SOC_K3_J721E
+	select K3_LOAD_SYSFW
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	imply SYS_K3_SPL_ATF
+
+endchoice
+
+if TARGET_ROVY_4VM_A72
+
+config SYS_BOARD
+       default "rovy-4vm"
+
+config SYS_VENDOR
+       default "technexion"
+
+config SYS_CONFIG_NAME
+       default "rovy-4vm"
+
+source "board/ti/common/Kconfig"
+
+endif
+
+if TARGET_ROVY_4VM_R5
+
+config SYS_BOARD
+       default "rovy-4vm"
+
+config SYS_VENDOR
+       default "technexion"
+
+config SYS_CONFIG_NAME
+       default "rovy-4vm"
+
+config SPL_LDSCRIPT
+	default "arch/arm/mach-omap2/u-boot-spl.lds"
+
+source "board/ti/common/Kconfig"
+
+endif
