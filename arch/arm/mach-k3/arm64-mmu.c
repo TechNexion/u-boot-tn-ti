@@ -68,7 +68,8 @@ struct mm_region *mem_map = am654_mem_map;
 
 #ifdef CONFIG_SOC_K3_J721E
 
-#ifdef CONFIG_TARGET_J721E_A72_EVM
+/* Exclude uboot build for r5 */
+#if !defined(CONFIG_K3_EARLY_CONS)
 /* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
 #define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 6)
 
@@ -125,7 +126,7 @@ struct mm_region j721e_mem_map[NR_MMU_REGIONS] = {
 };
 
 struct mm_region *mem_map = j721e_mem_map;
-#endif /* CONFIG_TARGET_J721E_A72_EVM */
+#endif /* CONFIG_K3_EARLY_CONS */
 
 #ifdef CONFIG_TARGET_J7200_A72_EVM
 #define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 5)
