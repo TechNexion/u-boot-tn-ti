@@ -31,6 +31,8 @@
 #define MCU_ADC1_AIN0			BIT(12)
 #define MCU_ADC1_AIN1			BIT(13)
 
+#define PSRAMECC0_RAM_BOOT_DEVICE 0x200000
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /**********************************************
@@ -222,9 +224,29 @@ void configure_serdes_sierra(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+static int tda4_boot_dev(void) {
+    return readl(PSRAMECC0_RAM_BOOT_DEVICE);
+}
+
+void detect_boot_dev(void) {
+	switch(tda4_boot_dev()) {
+	case BOOT_DEVICE_SPI:
+		printf("Boot Device: OSPI\n");
+		env_set("boot", "ufs");
+		break;
+	case BOOT_DEVICE_MMC2:
+		printf("Boot Device: SD\n");
+		break;
+	default:
+		printf("Boot Device: Unknown\n");
+		break;
+	}
+}
+
 int board_late_init(void)
 {
 	configure_serdes_sierra();
+	detect_boot_dev();
 
 	return 0;
 }
@@ -232,5 +254,6 @@ int board_late_init(void)
 
 void spl_board_init(void)
 {
-
+	/* Store boot_device for U-Boot */
+	writel(spl_boot_device(), PSRAMECC0_RAM_BOOT_DEVICE);
 }
