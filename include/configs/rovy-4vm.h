@@ -198,6 +198,27 @@
 #define EXTRA_ENV_J721E_BOARD_SETTINGS_MTD
 #endif
 
+#define TN_FLASH_BOOTLOADER_IN_OSPI \
+	"flash_ospi=" \
+	"sf probe;" \
+	"fatload mmc 1 ${loadaddr} tiboot3.bin;" \
+	"sf update $loadaddr 0x0 $filesize;" \
+	"fatload mmc 1 ${loadaddr} tispl.bin;" \
+	"sf update $loadaddr 0x80000 $filesize;" \
+	"fatload mmc 1 ${loadaddr} u-boot.img;" \
+	"sf update $loadaddr 0x280000 $filesize;" \
+	"fatload mmc 1 ${loadaddr} sysfw.itb;" \
+	"sf update $loadaddr 0x6C0000 $filesize\0"
+
+#define TN_CLEAN_OSPI \
+	"clean_ospi=" \
+	"sf probe;" \
+	"sf erase 0x0 +0x9C0000\0"
+
+#define EXTRA_ENV_TN_ENV \
+	TN_FLASH_BOOTLOADER_IN_OSPI \
+	TN_CLEAN_OSPI
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
@@ -207,6 +228,7 @@
 	EXTRA_ENV_J721E_BOARD_SETTINGS_MMC				\
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS						\
+	EXTRA_ENV_TN_ENV						\
 	DEFAULT_UFS_TI_ARGS						\
 	EXTRA_ENV_J721E_BOARD_SETTINGS_MTD				\
 	EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY
