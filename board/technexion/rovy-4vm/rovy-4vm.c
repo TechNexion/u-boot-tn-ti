@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <env_internal.h>
 #include <fdt_support.h>
 #include <generic-phy.h>
 #include <image.h>
@@ -250,6 +251,25 @@ int board_late_init(void)
 
 	return 0;
 }
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (tda4_boot_dev()) {
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+	case BOOT_DEVICE_SPI:
+		return ENVL_SPI_FLASH;
+#endif
+#ifdef CONFIG_ENV_IS_IN_FAT
+	case BOOT_DEVICE_MMC2:
+		return  ENVL_FAT;
+#endif
+	default:
+		return ENVL_UNKNOWN;
+	}
+}
 #endif
 
 void spl_board_init(void)
@@ -257,3 +277,4 @@ void spl_board_init(void)
 	/* Store boot_device for U-Boot */
 	writel(spl_boot_device(), PSRAMECC0_RAM_BOOT_DEVICE);
 }
+
