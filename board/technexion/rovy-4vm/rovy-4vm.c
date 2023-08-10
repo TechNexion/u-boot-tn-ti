@@ -128,7 +128,7 @@ int board_fit_config_name_match(const char *name)
 #endif
 
 #if defined(CONFIG_SPL_BUILD)
-extern struct reginitdata {
+struct reginitdata {
 	u32 ctl_regs[LPDDR4_INTR_CTL_REG_COUNT];
 	u16 ctl_regs_offs[LPDDR4_INTR_CTL_REG_COUNT];
 	u32 pi_regs[LPDDR4_INTR_PHY_INDEP_REG_COUNT];
