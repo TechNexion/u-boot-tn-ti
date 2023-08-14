@@ -215,6 +215,49 @@
 	"sf probe;" \
 	"sf erase 0x0 +0x9C0000\0"
 
+#define DEFAULT_TN_BOOT_ENV \
+	"bootenvfile=boot/uEnv.txt\0" \
+	"loadbootenv=load ${devtype} ${bootpart} ${loadaddr} ${bootenvfile}\0" \
+	"loadbootscript=load ${devtype} ${bootpart} ${loadaddr} boot/boot.scr\0" \
+	"importbootenv=echo Importing environment from ${boot} ...; " \
+		"env import -t ${loadaddr} ${filesize}\0" \
+	"envboot_mmc=setenv devtype mmc; " \
+		"setenv bootpart ${mmcdev}:2; " \
+		"mmc dev ${mmcdev}; " \
+		"if mmc rescan; then " \
+			"echo SD/MMC found on device ${mmcdev};" \
+			"if run loadbootscript; then " \
+				"run bootscript;" \
+			"else " \
+				"if run loadbootenv; then " \
+					"echo Loaded env from ${bootenvfile};" \
+					"run importbootenv;" \
+				"fi;" \
+				"if test -n $uenvcmd; then " \
+					"echo Running uenvcmd ...;" \
+					"run uenvcmd;" \
+				"fi;" \
+			"fi;" \
+		"fi;\0" \
+	"envboot_ufs=setenv devtype scsi; " \
+		"setenv bootpart 1:1; " \
+		"ufs init; " \
+		"if scsi scan;; then " \
+			"echo UFS found; " \
+			"if run loadbootscript; then " \
+				"run bootscript;" \
+			"else " \
+				"if run loadbootenv; then " \
+					"echo Loaded env from ${bootenvfile};" \
+					"run importbootenv;" \
+				"fi;" \
+				"if test -n $uenvcmd; then " \
+					"echo Running uenvcmd ...;" \
+					"run uenvcmd;" \
+				"fi;" \
+			"fi;" \
+		"fi;\0"
+
 #define EXTRA_ENV_TN_ENV \
 	TN_FLASH_BOOTLOADER_IN_OSPI \
 	TN_CLEAN_OSPI
@@ -228,8 +271,9 @@
 	EXTRA_ENV_J721E_BOARD_SETTINGS_MMC				\
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS						\
-	EXTRA_ENV_TN_ENV						\
 	DEFAULT_UFS_TI_ARGS						\
+	EXTRA_ENV_TN_ENV						\
+	DEFAULT_TN_BOOT_ENV						\
 	EXTRA_ENV_J721E_BOARD_SETTINGS_MTD				\
 	EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY
 
