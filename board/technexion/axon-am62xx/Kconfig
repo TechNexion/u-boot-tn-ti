@@ -2,21 +2,24 @@
 #
 # Copyright (C) 2020-2022 Texas Instruments Incorporated - https://www.ti.com/
 #	Suman Anna <s-anna@ti.com>
+#
+# Copyright 2023 TechNexion Ltd.
+# Ray Chang <ray.chang@technexion.com>
 
 choice
-	prompt "TI K3 AM62x based boards"
+	prompt "TechNexion AXON-AM62XX SoM"
 	optional
 
-config TARGET_AM625_A53_EVM
-	bool "TI K3 based AM625 EVM running on A53"
+config TARGET_AXON_AM62XX_A53
+	bool "AXON-AM62XX running on A53"
 	select ARM64
 	select SOC_K3_AM625
 	imply BOARD
 	imply SPL_BOARD
 	imply TI_I2C_BOARD_DETECT
 
-config TARGET_AM625_R5_EVM
-	bool "TI K3 based AM625 EVM running on R5"
+config TARGET_AXON_AM62XX_R5
+	bool "AXON-AM62XX running on R5"
 	select CPU_V7R
 	select SYS_THUMB_BUILD
 	select K3_LOAD_SYSFW
@@ -29,35 +32,24 @@ config TARGET_AM625_R5_EVM
 
 endchoice
 
-if TARGET_AM625_A53_EVM
+if TARGET_AXON_AM62XX_R5 || TARGET_AXON_AM62XX_A53
 
 config SYS_BOARD
-       default "am62x"
+	default "axon-am62xx"
 
 config SYS_VENDOR
-       default "ti"
+	default "technexion"
 
 config SYS_CONFIG_NAME
-       default "am62x_evm"
+	default "axon-am62xx"
 
 source "board/ti/common/Kconfig"
 
 endif
 
-if TARGET_AM625_R5_EVM
-
-config SYS_BOARD
-       default "am62x"
-
-config SYS_VENDOR
-       default "ti"
-
-config SYS_CONFIG_NAME
-       default "am62x_evm"
+if TARGET_AXON_AM62XX_R5
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-omap2/u-boot-spl.lds"
-
-source "board/ti/common/Kconfig"
 
 endif

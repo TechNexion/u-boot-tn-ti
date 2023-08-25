@@ -5,6 +5,9 @@
  * Copyright (C) 2020-2022 Texas Instruments Incorporated - https://www.ti.com/
  *	Suman Anna <s-anna@ti.com>
  *
+ * Copyright 2023 TechNexion Ltd.
+ * Ray Chang <ray.chang@technexion.com>
+ *
  */
 
 #include <common.h>

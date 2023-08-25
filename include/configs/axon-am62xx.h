@@ -4,10 +4,13 @@
  *
  * Copyright (C) 2020-2022 Texas Instruments Incorporated - https://www.ti.com/
  *	Suman Anna <s-anna@ti.com>
+ *
+ * Copyright 2023 TechNexion Ltd.
+ * Ray Chang <ray.chang@technexion.com>
  */
 
-#ifndef __CONFIG_AM625_EVM_H
-#define __CONFIG_AM625_EVM_H
+#ifndef __CONFIG_AXON_AM62XX_H
+#define __CONFIG_AXON_AM62XX_H
 
 #include <linux/sizes.h>
 #include <config_distro_bootcmd.h>
@@ -67,7 +70,7 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"tispl.bin"
 #endif
 
-#if defined(CONFIG_TARGET_AM625_A53_EVM)
+#if defined(CONFIG_TARGET_AXON_AM62XX_A53)
 #define CONFIG_SPL_MAX_SIZE		SZ_1M
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE + SZ_4M)
 #else
@@ -120,13 +123,10 @@
 
 /* U-Boot general configuration */
 #define EXTRA_ENV_AM625_BOARD_SETTINGS					\
-	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"	\
+	"baseboard=wb\0"						\
+	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE "\0"		\
 	"findfdt="							\
-		"setenv name_fdt ${default_device_tree};"		\
-		"if test $board_name = am62x_skevm; then "		\
-			"setenv name_fdt k3-am625-sk.dtb; fi;"		\
-		"if test $board_name = am62x_lp_skevm; then "		\
-			"setenv name_fdt k3-am62x-lp-sk.dtb; fi;"	\
+		"setenv name_fdt ${default_device_tree}-${baseboard}.dtb;" \
 		"setenv fdtfile ${name_fdt}\0"				\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
@@ -185,7 +185,7 @@
 		"run get_fdt_usb;"					\
 		"run run_kern\0"
 
-#ifdef CONFIG_TARGET_AM625_A53_EVM
+#ifdef CONFIG_TARGET_AXON_AM62XX_A53
 #define EXTRA_ENV_AM625_BOARD_SETTINGS_MTD				\
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
@@ -237,7 +237,7 @@
 	"get_kern_nand=ubifsload ${loadaddr} ${bootdir}/${name_kern}\0"	\
 	"get_fit_nand=ubifsload ${addr_fit} ${bootdir}/${name_fit}\0"
 
-#if defined(CONFIG_TARGET_AM625_A53_EVM)
+#if defined(CONFIG_TARGET_AXON_AM62XX_A53)
 #if defined(DEFAULT_RPROCS)
 #undef DEFAULT_RPROCS
 #endif
@@ -340,12 +340,9 @@
  */
 #define PREPARE_FDT \
 	"echo Preparing FDT...; " \
-	"if test $board_name = am62x_skevm; then " \
-		"echo \"  Reading DTB for am62x_skevm...\"; " \
+	"if test $board_name = axon-am62xx; then " \
+		"echo \"  Reading DTB for axon-am62x...\"; " \
 		"setenv dtb_index 0;" \
-	"elif test $board_name = am62x_lp_skevm; then " \
-		"echo \"  Reading DTB for am62x_lp_skevm...\"; " \
-		"setenv dtb_index 1;" \
 	"else " \
 		"echo Error: Android boot is not supported for $board_name; " \
 		"exit; " \
@@ -504,7 +501,7 @@
 
 #endif
 
-#if defined(CONFIG_TARGET_AM625_A53_EVM) || defined(CONFIG_SPL_DFU)
+#if defined(CONFIG_TARGET_AXON_AM62XX_A53) || defined(CONFIG_SPL_DFU)
 #define EXTRA_ENV_DFUARGS \
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_EMMC \
@@ -544,4 +541,4 @@
 #endif
 #define CONFIG_SYS_MALLOC_LEN           SZ_128M
 
-#endif /* __CONFIG_AM625_EVM_H */
+#endif /* __CONFIG_AXON_AM62XX_H */
