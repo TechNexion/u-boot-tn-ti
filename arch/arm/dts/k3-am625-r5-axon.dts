@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * AM625 SK dts file for R5 SPL
  * Copyright (C) 2021-2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright 2023 TechNexion Ltd.
+ *
+ * Author: Ray Chang <ray.chang@technexion.com>
  */
 
-#include "k3-am625-sk.dts"
+#include "k3-am625-axon.dts"
 #include "k3-am62x-sk-ddr4-1600MTs.dtsi"
 #include "k3-am62-ddr.dtsi"
 
-#include "k3-am625-sk-u-boot.dtsi"
+#include "k3-am625-axon-u-boot.dtsi"
 #include "k3-am62x-r5-sk-common.dtsi"

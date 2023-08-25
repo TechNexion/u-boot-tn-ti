@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Common dtsi for AM62x SK and derivatives
- *
  * Copyright (C) 2021-2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright 2023 TechNexion Ltd.
+ *
+ * Author: Ray Chang <ray.chang@technexion.com>
+ *
  */
 
 /dts-v1/;
@@ -13,6 +15,9 @@
 #include "k3-am625.dtsi"
 
 / {
+	compatible =  "technexion,am625-axon", "ti,am625";
+	model = "TechNexion AXON-AM62XX";
+
 	aliases {
 		serial2 = &main_uart0;
 		mmc0 = &sdhci0;
@@ -72,113 +77,132 @@
 		};
 	};
 
-	vmain_pd: regulator-0 {
-		/* TPS65988 PD CONTROLLER OUTPUT */
+	vcc_3v3_main: regulator-0 {
+		/* Output of TPS62095 */
 		compatible = "regulator-fixed";
-		regulator-name = "vmain_pd";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
+		regulator-name = "vcc_3v3_main";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vcc_5v0: regulator-1 {
-		/* Output of LM34936 */
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_5v0";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		vin-supply = <&vmain_pd>;
-		regulator-always-on;
-		regulator-boot-on;
-	};
-
-	vcc_3v3_sys: regulator-2 {
-		/* output of LM61460-Q1 */
+	vcc_3v3_sys: regulator-1 {
+		/* Output of TPS22965 */
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_3v3_sys";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-		vin-supply = <&vmain_pd>;
+		vin-supply = <&vcc_3v3_main>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
+	vpp_1v8: regulator-2 {
+		/* Output of TLV75518 */
+		compatible = "regulator-fixed";
+		regulator-name = "vpp_1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		vin-supply = <&vcc_3v3_sys>;
+		regulator-boot-on;
+		enable-active-high;
+		regulator-always-on;
+		gpio = <&ioexp22 0 GPIO_ACTIVE_HIGH>;
+	};
+
 	vdd_mmc1: fixed-regulator-sd {
-		/* TPS22918DBVR */
+		/* Output of MIC94040 */
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_mmc1";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-boot-on;
 		enable-active-high;
+		regulator-always-on;
 		vin-supply = <&vcc_3v3_sys>;
-		gpio = <&exp1 3 GPIO_ACTIVE_HIGH>;
+		gpio = <&ioexp22 6 GPIO_ACTIVE_HIGH>;
 	};
 
-	vdd_sd_dv: gpio-regulator-TLV71033 {
-		/* Output of TLV71033 */
+	vsel_sd_nddr: gpio-regulator {
 		compatible = "regulator-gpio";
-		regulator-name = "tlv71033";
 		pinctrl-names = "default";
-		pinctrl-0 = <&vdd_sd_dv_pins_default>;
+		pinctrl-0 = <&main_gpio0_vsel_sd_nddr_pins_default>;
+		regulator-name = "tps65219-LDO1-SEL-SD";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-boot-on;
-		vin-supply = <&vcc_5v0>;
+		vin-supply = <&ldo1_reg>;
 		gpios = <&main_gpio0 31 GPIO_ACTIVE_HIGH>;
 		states = <1800000 0x0>,
 			 <3300000 0x1>;
 	};
 
-	leds {
-		compatible = "gpio-leds";
+	se_ena_on: regulator-6 {
+		compatible = "regulator-fixed";
 		pinctrl-names = "default";
-		pinctrl-0 = <&usr_led_pins_default>;
-
-		led-0 {
-			label = "am62-sk:green:heartbeat";
-			gpios = <&main_gpio1 49 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "heartbeat";
-			function = LED_FUNCTION_HEARTBEAT;
-			default-state = "off";
-		};
+		pinctrl-0 = <&main_gpio0_se_ena_pins_default>;
+		regulator-name = "se_ena_on";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&main_gpio0 71 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 
 	extcon_usb0: extcon-usb0 {
 		compatible = "linux,extcon-usb-gpio";
-		id-gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
+		id-gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&extcon_usb0_gpio_id_pins_default>;
+		pinctrl-0 = <&extcon_usb1_gpio_id_pins_default>;
+	};
+};
+
+&mcu_pmx0 {
+	wkup_i2c0_pins_default: wkup-i2c0-pins-default {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x004c, PIN_INPUT, 0) /* (B9) WKUP_I2C0_SCL */
+			AM62X_MCU_IOPAD(0x0050, PIN_INPUT, 0) /* (A9) WKUP_I2C0_SDA */
+		>;
+	};
+
+	mcu_uart0_pins_default: mcu-uart0-pins-default {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x001c, PIN_INPUT, 0) /* (A6) MCU_UART0_CTSn */
+			AM62X_MCU_IOPAD(0x0020, PIN_OUTPUT, 0) /* (B6) MCU_UART0_RTSn */
+			AM62X_MCU_IOPAD(0x0014, PIN_INPUT, 0) /* (B5) MCU_UART0_RXD */
+			AM62X_MCU_IOPAD(0x0018, PIN_OUTPUT, 0) /* (A5) MCU_UART0_TXD */
+		>;
+	};
+
+	mcu_i2c0_pins_default: mcu-i2c0-pins-default {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x0044, PIN_INPUT, 0) /* (A8) MCU_I2C0_SCL */
+			AM62X_MCU_IOPAD(0x0048, PIN_INPUT, 0) /* (D10) MCU_I2C0_SDA */
+		>;
 	};
 };
 
 &main_pmx0 {
 	main_uart0_pins_default: main-uart0-pins-default {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x1c8, PIN_INPUT, 0) /* (D14) UART0_RXD */
-			AM62X_IOPAD(0x1cc, PIN_OUTPUT, 0) /* (E14) UART0_TXD */
+			AM62X_IOPAD(0x01d0, PIN_INPUT, 0) /* (A15) UART0_CTSn */
+			AM62X_IOPAD(0x01d4, PIN_OUTPUT, 0) /* (B15) UART0_RTSn */
+			AM62X_IOPAD(0x01c8, PIN_INPUT, 0) /* (D14) UART0_RXD */
+			AM62X_IOPAD(0x01cc, PIN_OUTPUT, 0) /* (E14) UART0_TXD */
 		>;
 	};
 
 	main_i2c0_pins_default: main-i2c0-pins-default {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x1e0, PIN_INPUT_PULLUP, 0) /* (B16) I2C0_SCL */
-			AM62X_IOPAD(0x1e4, PIN_INPUT_PULLUP, 0) /* (A16) I2C0_SDA */
-		>;
-	};
-
-	main_i2c1_pins_default: main-i2c1-pins-default {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x1e8, PIN_INPUT_PULLUP, 0) /* (B17) I2C1_SCL */
-			AM62X_IOPAD(0x1ec, PIN_INPUT_PULLUP, 0) /* (A17) I2C1_SDA */
+			AM62X_IOPAD(0x01e0, PIN_INPUT, 0) /* (B16) I2C0_SCL */
+			AM62X_IOPAD(0x01e4, PIN_INPUT, 0) /* (A16) I2C0_SDA */
 		>;
 	};
 
 	main_i2c2_pins_default: main-i2c2-pins-default {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x0b0, PIN_INPUT_PULLUP, 1) /* (K22) GPMC0_CSn2.I2C2_SCL */
-			AM62X_IOPAD(0x0b4, PIN_INPUT_PULLUP, 1) /* (K24) GPMC0_CSn3.I2C2_SDA */
+			AM62X_IOPAD(0x0b0, PIN_INPUT, 1) /* (K22) GPMC0_CSn2.I2C2_SCL */
+			AM62X_IOPAD(0x0b4, PIN_INPUT, 1) /* (K24) GPMC0_CSn3.I2C2_SDA */
 		>;
 	};
 
@@ -209,9 +233,33 @@
 		>;
 	};
 
-	usr_led_pins_default: usr-led-pins-default {
+	main_gpio0_wlan_en_pins_default: main-gpio0-wlan-en-pins-default {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x244, PIN_OUTPUT, 7) /* (C17) MMC1_SDWP.GPIO1_49 */
+			AM62X_IOPAD(0x00a8, PIN_OUTPUT_PULLUP, 7) /* (M21) GPMC0_CSn0.GPIO0_41 */
+		>;
+	};
+
+	main_bt_en_pins_default: main-bt-en-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x00ac, PIN_OUTPUT_PULLUP, 7) /* (L21) GPMC0_CSn1.GPIO0_42 */
+		>;
+	};
+
+	main_gpio0_se_ena_pins_default: main-gpio0-se-ena-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x124, PIN_OUTPUT, 7) /* (A23) MMC2_SDCD.GPIO0_71 */
+		>;
+	};
+
+	main_gpio0_se_clk_pins_default: main-gpio0-se-clk-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x00a4, PIN_INPUT, 7) /* (M22) GPMC0_DIR.GPIO0_40 */
+		>;
+	};
+
+	main_gpio0_vsel_sd_nddr_pins_default: main-gpio0-vsel-sd-nddr-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x07c, PIN_OUTPUT, 7) /* (P25) GPMC0_CLK.GPIO0_31 */
 		>;
 	};
 
@@ -256,24 +304,6 @@
 		>;
 	};
 
-	vdd_sd_dv_pins_default: vdd-sd-dv-pins-default {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x07c, PIN_OUTPUT, 7) /* (P25) GPMC0_CLK.GPIO0_31 */
-		>;
-	};
-
-	extcon_usb0_gpio_id_pins_default: extcon-usb0-gpio-id-pins-default {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x254, PIN_INPUT_PULLUP, 7) /* (C20) USB0_DRVVBUS.GPIO1_50 */
-		>;
-	};
-
-	main_usb1_pins_default: main-usb1-pins-default {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x0258, PIN_OUTPUT, 0) /* (F18) USB1_DRVVBUS */
-		>;
-	};
-
 	ospi0_pins_default: ospi0-pins-default {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x000, PIN_OUTPUT, 0) /* (H24) OSPI0_CLK */
@@ -287,8 +317,60 @@
 			AM62X_IOPAD(0x024, PIN_INPUT, 0) /* (H25) OSPI0_D6 */
 			AM62X_IOPAD(0x028, PIN_INPUT, 0) /* (J22) OSPI0_D7 */
 			AM62X_IOPAD(0x008, PIN_INPUT, 0) /* (J24) OSPI0_DQS */
+			AM62X_IOPAD(0x0004, PIN_INPUT, 0) /* (G25) OSPI0_LBCLKO */
+			AM62X_IOPAD(0x0030, PIN_INPUT, 7) /* (G21) OSPI0_CSn1.GPIO0_12 */
+			AM62X_IOPAD(0x0034, PIN_INPUT, 7) /* (H21) OSPI0_CSn2.GPIO0_13 */
 		>;
 	};
+
+	main_usb0_pins_default: main-usb0-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x0254, PIN_OUTPUT, 0) /* (C20) USB0_DRVVBUS */
+		>;
+	};
+
+	extcon_usb1_gpio_id_pins_default: extcon-usb1-gpio-id-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x0258, PIN_INPUT_PULLUP, 7) /* (F18) USB1_DRVVBUS.GPIO1_51 */
+		>;
+	};
+
+	main_gpio0_ioexp22_ctrl_pins_default: main-gpio0-ioexp22-ctrl-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x0094, PIN_OUTPUT, 7) /* (N20) GPMC0_BE1n.GPIO0_36 */
+			AM62X_IOPAD(0x009c, PIN_INPUT, 7) /* (V25) GPMC0_WAIT1.GPIO0_38 */
+		>;
+	};
+
+	pmic_irq_pins_default: pmic-irq-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x01f4, PIN_INPUT, 7) /* (D16) EXTINTn.GPIO1_31 */
+		>;
+	};
+};
+
+&main_gpio0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_gpio0_wlan_en_pins_default
+				&main_bt_en_pins_default>;
+
+	wl_reg_on {
+		gpio-hog;
+		output-low;
+		gpios = <41 GPIO_ACTIVE_HIGH>;
+	};
+
+	bt_reg_on {
+		gpio-hog;
+		output-low;
+		gpios = <42 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+/* UART_B on AXON */
+&mcu_uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_uart0_pins_default>;
 };
 
 &wkup_uart0 {
@@ -296,10 +378,7 @@
 	status = "reserved";
 };
 
-&mcu_uart0 {
-	status = "disabled";
-};
-
+/* UART_A on AXON, console */
 &main_uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart0_pins_default>;
@@ -330,14 +409,116 @@
 	status = "disabled";
 };
 
+/* I2C_C on AXON */
 &mcu_i2c0 {
-	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_i2c0_pins_default>;
+	clock-frequency = <400000>;
 };
 
+/* I2C on SOM */
 &wkup_i2c0 {
-	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_i2c0_pins_default>;
+	clock-frequency = <400000>;
+
+	tps65219: pmic@30 {
+		compatible = "ti,tps65219";
+		reg = <0x30>;
+		system-power-controller;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pmic_irq_pins_default>;
+		interrupt-parent = <&gic500>;
+		interrupts = <GIC_SPI 224 IRQ_TYPE_LEVEL_HIGH>;
+		ti,power-button;
+
+		buck1-supply = <&vcc_3v3_main>;
+		buck2-supply = <&vcc_3v3_main>;
+		buck3-supply = <&vcc_3v3_main>;
+		ldo1-supply = <&vcc_3v3_main>;
+		ldo2-supply = <&buck2_reg>;
+		ldo3-supply = <&vcc_3v3_main>;
+		ldo4-supply = <&vcc_3v3_main>;
+
+		regulators {
+			buck1_reg: buck1 {
+				regulator-name = "VDD_CORE";
+				regulator-min-microvolt = <750000>;
+				regulator-max-microvolt = <1000000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+
+			buck2_reg: buck2 {
+				regulator-name = "VCC1V8";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+
+			buck3_reg: buck3 {
+				regulator-name = "VDD_DDR4";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1200000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+
+			ldo1_reg: ldo1 {
+				regulator-name = "VDDSHV_SD_IO_PMIC";
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-allow-bypass;
+				regulator-always-on;
+			};
+
+			ldo2_reg: ldo2 {
+				regulator-name = "VDDAR_CORE";
+				regulator-min-microvolt = <850000>;
+				regulator-max-microvolt = <850000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+
+			ldo3_reg: ldo3 {
+				regulator-name = "VDDA_1V8";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+
+			ldo4_reg: ldo4 {
+				regulator-name = "VDD_PHY_2V5";
+				regulator-min-microvolt = <2500000>;
+				regulator-max-microvolt = <2500000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+		};
+	};
+
+	ioexp22: pcal6524@22 {
+		compatible = "nxp,pcal6524";
+		reg = <0x22>;
+		vcc-supply = <&vcc_3v3_sys>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_gpio0_ioexp22_ctrl_pins_default>;
+		reset-gpios = <&main_gpio0 36 GPIO_ACTIVE_LOW>;
+		interrupt-parent = <&main_gpio0>;
+		interrupts = <38 IRQ_TYPE_EDGE_FALLING>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		gpio-line-names = "VPP_LDO_EN", "GPIO_ENET1_RST", "GPIO_ENET2_RST", "SE_RST", "DISP_BKLEN", "GPIO_X2_P22", "MMC1_SD_EN", "GPIO_eMMC_RSTn",
+				   "", "", "", "", "", "", "GPIO_X3_P69", "GPIO_X3_P71",
+				   "GPIO_X1_P66", "GPIO_X1_P68", "GPIO_X1_P70", "GPIO_X1_P72", "GPIO_X1_P74", "GPIO_X1_P76", "GPIO_X1_P78", "GPIO_X1_P80";
+	};
 };
 
+/* I2C_A on AXON */
 &main_i2c0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c0_pins_default>;
@@ -345,38 +526,21 @@
 };
 
 &main_i2c1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_i2c1_pins_default>;
-	clock-frequency = <400000>;
-
-	exp1: gpio@22 {
-		compatible = "ti,tca6424";
-		reg = <0x22>;
-		gpio-controller;
-		#gpio-cells = <2>;
-		gpio-line-names = "GPIO_CPSW2_RST", "GPIO_CPSW1_RST",
-				   "PRU_DETECT", "MMC1_SD_EN",
-				   "VPP_LDO_EN", "EXP_PS_3V3_En",
-				   "EXP_PS_5V0_En", "EXP_HAT_DETECT",
-				   "GPIO_AUD_RSTn", "GPIO_eMMC_RSTn",
-				   "UART1_FET_BUF_EN", "WL_LT_EN",
-				   "GPIO_HDMI_RSTn", "CSI_GPIO1",
-				   "CSI_GPIO2", "PRU_3V3_EN",
-				   "HDMI_INTn", "TEST_GPIO2",
-				   "MCASP1_FET_EN", "MCASP1_BUF_BT_EN",
-				   "MCASP1_FET_SEL", "UART1_FET_SEL",
-				   "TSINT#", "IO_EXP_TEST_LED";
-	};
+	status = "disabled";
 };
 
+/* I2C_B on AXON */
 &main_i2c2 {
-	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_i2c2_pins_default>;
+	clock-frequency = <400000>;
 };
 
 &main_i2c3 {
 	status = "disabled";
 };
 
+/* eMMC on SOM */
 &sdhci0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc0_pins_default>;
@@ -384,14 +548,19 @@
 	disable-wp;
 };
 
+/* SD card on baseboard */
 &sdhci1 {
-	/* SD/MMC */
 	vmmc-supply = <&vdd_mmc1>;
-	vqmmc-supply = <&vdd_sd_dv>;
+	vqmmc-supply = <&vsel_sd_nddr>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc1_pins_default>;
 	ti,driver-strength-ohm = <50>;
 	disable-wp;
+};
+
+/* WIFI SDIO */
+&sdhci2 {
+	status = "disabled";
 };
 
 &usbss0 {
@@ -405,7 +574,7 @@
 &usb1 {
 	dr_mode = "host";
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb1_pins_default>;
+	pinctrl-0 = <&main_usb0_pins_default>;
 };
 
 &cpsw3g {
@@ -420,12 +589,32 @@
 	phy-handle = <&cpsw3g_phy0>;
 };
 
+&cpsw_port2 {
+	phy-mode = "rgmii-rxid";
+	phy-handle = <&cpsw3g_phy1>;
+};
+
 &cpsw3g_mdio {
-	cpsw3g_phy0: ethernet-phy@0 {
-		reg = <0>;
+	cpsw3g_phy0: ethernet-phy@1 {
+		reg = <1>;
+		reset-assert-us = <35000>;
+		reset-deassert-us = <75000>;
+		reset-gpios = <&ioexp22 1 GPIO_ACTIVE_LOW>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 		ti,min-output-impedance;
+		rtl821x,phy-mode-eee-disable;
+	};
+
+	cpsw3g_phy1: ethernet-phy@2 {
+		reg = <2>;
+		reset-assert-us = <35000>;
+		reset-deassert-us = <75000>;
+		reset-gpios = <&ioexp22 2 GPIO_ACTIVE_LOW>;
+		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		ti,min-output-impedance;
+		rtl821x,phy-mode-eee-disable;
 	};
 };
 

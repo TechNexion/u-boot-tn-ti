@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Common AM62x SK dts file for SPLs
  * Copyright (C) 2021-2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright 2023 TechNexion Ltd.
+ *
+ * Author: Ray Chang <ray.chang@technexion.com>
  */
 
 / {
@@ -37,10 +39,6 @@
 };
 
 &secure_proxy_main {
-	u-boot,dm-spl;
-};
-
-&dmsc {
 	u-boot,dm-spl;
 };
 
@@ -96,6 +94,14 @@
 	u-boot,dm-spl;
 };
 
+&wkup_i2c0 {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0_pins_default {
+	u-boot,dm-spl;
+};
+
 &main_i2c0 {
 	u-boot,dm-spl;
 };
@@ -127,15 +133,15 @@
 	u-boot,dm-spl;
 };
 
+&main_usb0_pins_default {
+	u-boot,dm-spl;
+};
+
 &usbss1 {
 	u-boot,dm-spl;
 };
 
 &usb1 {
-	u-boot,dm-spl;
-};
-
-&main_usb1_pins_default {
 	u-boot,dm-spl;
 };
 
@@ -195,4 +201,60 @@
 		compatible = "ti,sci-sysreset";
 		u-boot,dm-spl;
 	};
+};
+
+&main_rgmii2_pins_default {
+	u-boot,dm-spl;
+};
+
+&cpsw3g_phy1 {
+	u-boot,dm-spl;
+};
+
+&ospi0 {
+	u-boot,dm-spl;
+
+	flash@0 {
+		u-boot,dm-spl;
+
+		partitions {
+			u-boot,dm-spl;
+
+			partition@3fc0000 {
+				u-boot,dm-spl;
+			};
+		};
+	};
+};
+
+&main_gpio0 {
+	u-boot,dm-spl;
+};
+
+&ioexp22 {
+	u-boot,dm-spl;
+};
+
+&vcc_3v3_main {
+	u-boot,dm-spl;
+};
+
+&vcc_3v3_sys {
+	u-boot,dm-spl;
+};
+
+&vpp_1v8 {
+	u-boot,dm-spl;
+};
+
+&vdd_mmc1 {
+	u-boot,dm-spl;
+};
+
+&vsel_sd_nddr {
+	u-boot,dm-spl;
+};
+
+&main_gpio0_vsel_sd_nddr_pins_default {
+	u-boot,dm-spl;
 };
