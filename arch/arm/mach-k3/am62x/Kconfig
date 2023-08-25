@@ -69,7 +69,6 @@ config TARGET_AXON_AM62XX_A53
 	select BINMAN
 	select OF_SYSTEM_SETUP
 	imply TI_COMMON_CMD_OPTIONS
-	imply TI_I2C_BOARD_DETECT
 
 config TARGET_AXON_AM62XX_R5
 	bool "TechNexion AXON-AM62XX running on R5"
@@ -81,7 +80,6 @@ config TARGET_AXON_AM62XX_R5
 	select K3_DDRSS
 	select BINMAN
 	imply SYS_K3_SPL_ATF
-	imply TI_I2C_BOARD_DETECT
 
 endchoice
 
