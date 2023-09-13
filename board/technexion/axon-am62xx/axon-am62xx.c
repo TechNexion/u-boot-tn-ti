@@ -22,6 +22,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 
+#define PSRAMECC0_RAM_BOOT_DEVICE 0x00000000
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
@@ -101,8 +103,32 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 #endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
+static int am6_boot_dev(void) {
+    return readl(PSRAMECC0_RAM_BOOT_DEVICE);
+}
+
+void detect_boot_dev(void)
+{
+	switch (am6_boot_dev()) {
+	case BOOT_DEVICE_MMC1:
+		env_set_ulong("mmcdev", 0);
+		env_set("bootpart", "0:2");
+		printf("Boot Device: MMC\n");
+		break;
+	case BOOT_DEVICE_MMC2:
+		env_set_ulong("mmcdev", 1);
+		env_set("bootpart", "1:2");
+		printf("Boot Device: SD\n");
+		break;
+	default:
+		printf("Boot Device: Unknown\n");
+		break;
+	}
+}
+
 int board_late_init(void)
 {
+	detect_boot_dev();
 	return 0;
 }
 #endif
@@ -137,5 +163,8 @@ void spl_board_init(void)
 
 	/* Init DRAM size for R5/A53 SPL */
 	dram_init_banksize();
+
+	/* Store boot_device for U-Boot */
+	writel(spl_boot_device(), PSRAMECC0_RAM_BOOT_DEVICE);
 }
 #endif
