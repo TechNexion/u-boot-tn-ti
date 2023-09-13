@@ -20,6 +20,8 @@
 #include <dm/uclass.h>
 #include "../../ti/common/k3-ddr-init.h"
 
+#define PSRAMECC0_RAM_BOOT_DEVICE 0x00000000
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(SPLASH_SCREEN)
@@ -51,6 +53,29 @@ int board_init(void)
 }
 
 #if CONFIG_IS_ENABLED(BOARD_LATE_INIT)
+static int am6_boot_dev(void) {
+	return readl(PSRAMECC0_RAM_BOOT_DEVICE);
+}
+
+void detect_boot_dev(void)
+{
+	switch (am6_boot_dev()) {
+	case BOOT_DEVICE_MMC1:
+		env_set_ulong("mmcdev", 0);
+		env_set("bootpart", "0:2");
+		printf("Boot Device: MMC\n");
+		break;
+	case BOOT_DEVICE_MMC2:
+		env_set_ulong("mmcdev", 1);
+		env_set("bootpart", "1:2");
+		printf("Boot Device: SD\n");
+		break;
+	default:
+		printf("Boot Device: Unknown\n");
+		break;
+	}
+}
+
 int board_late_init(void)
 {
 	char fdtfile[50];
@@ -63,6 +88,7 @@ int board_late_init(void)
 
 		env_set("fdtfile", fdtfile);
 	}
+	detect_boot_dev();
 	return 0;
 }
 #endif
@@ -85,6 +111,9 @@ void spl_board_init(void)
 	enable_caches();
 	if (IS_ENABLED(CONFIG_SPL_SPLASH_SCREEN) && IS_ENABLED(CONFIG_SPL_BMP))
 		splash_display();
+
+	/* Store boot_device for U-Boot */
+	writel(spl_boot_device(), PSRAMECC0_RAM_BOOT_DEVICE);
 }
 
 void spl_perform_fixups(struct spl_image_info *spl_image)
