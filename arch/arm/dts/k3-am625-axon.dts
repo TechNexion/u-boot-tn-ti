@@ -500,7 +500,7 @@
 	};
 
 	ioexp22: pcal6524@22 {
-		compatible = "nxp,pcal6524";
+		compatible = "ti,tca6424";
 		reg = <0x22>;
 		vcc-supply = <&vcc_3v3_sys>;
 		pinctrl-names = "default";
@@ -515,6 +515,22 @@
 		gpio-line-names = "VPP_LDO_EN", "GPIO_ENET1_RST", "GPIO_ENET2_RST", "SE_RST", "DISP_BKLEN", "GPIO_X2_P22", "MMC1_SD_EN", "GPIO_eMMC_RSTn",
 				   "", "", "", "", "", "", "GPIO_X3_P69", "GPIO_X3_P71",
 				   "GPIO_X1_P66", "GPIO_X1_P68", "GPIO_X1_P70", "GPIO_X1_P72", "GPIO_X1_P74", "GPIO_X1_P76", "GPIO_X1_P78", "GPIO_X1_P80";
+
+		enet1-rst {
+			gpio-hog;
+			gpios = <1 GPIO_ACTIVE_HIGH>;
+			output-high;
+		};
+		enet2-rst {
+			gpio-hog;
+			gpios = <2 GPIO_ACTIVE_HIGH>;
+			output-high;
+		};
+		se-rst {
+			gpio-hog;
+			gpios = <3 GPIO_ACTIVE_HIGH>;
+			output-high;
+		};
 	};
 };
 
