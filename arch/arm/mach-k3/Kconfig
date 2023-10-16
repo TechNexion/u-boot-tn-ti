@@ -209,4 +209,5 @@ source "board/ti/j721e/Kconfig"
 source "board/ti/j721s2/Kconfig"
 source "board/ti/j784s4/Kconfig"
 source "board/technexion/axon-am62xx/Kconfig"
+source "board/technexion/axon-am62ax/Kconfig"
 endif
