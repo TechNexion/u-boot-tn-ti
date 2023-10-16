@@ -15,7 +15,6 @@ config TARGET_AXON_AM62AX_A53
 	select SOC_K3_AM62A7
 	imply BOARD
 	imply SPL_BOARD
-	imply TI_I2C_BOARD_DETECT
 
 config TARGET_AXON_AM62AX_R5
 	bool "AXON-AM62AX running on R5"
@@ -27,7 +26,6 @@ config TARGET_AXON_AM62AX_R5
 	select SPL_RAM
 	select K3_DDRSS
 	imply SYS_K3_SPL_ATF
-	imply TI_I2C_BOARD_DETECT
 
 endchoice
 
