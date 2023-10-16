@@ -1,9 +1,7 @@
-AM62Ax BOARD
-M:	Vignesh Raghavendra <vigneshr@ti.com>
-M:	Bryan Brattlof <bb@ti.com>
-M:	Tom Rini <trini@konsulko.com>
+AXON-AM62AX BOARD
+M:	Ray Chang <ray.chang@technexion.com>
 S:	Maintained
-F:	board/ti/am62ax/
-F:	include/configs/am62a7_evm.h
-F:	configs/am62ax_evm_r5_defconfig
-F:	configs/am62ax_evm_a53_defconfig
+F:	board/technexion/axon-am62ax/
+F:	include/configs/axon-am62ax.h
+F:	configs/axon-am62ax_r5_defconfig
+F:	configs/axon-am62ax_a53_defconfig

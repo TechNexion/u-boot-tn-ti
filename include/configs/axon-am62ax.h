@@ -3,10 +3,12 @@
  * Configuration header file for K3 AM62Ax SoC family
  *
  * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright 2023 TechNexion Ltd.
+ * Author: Ray Chang <ray.chang@technexion.com>
  */
 
-#ifndef __CONFIG_AM62AX_EVM_H
-#define __CONFIG_AM62AX_EVM_H
+#ifndef __CONFIG_AXON_AM62AX_H
+#define __CONFIG_AXON_AM62AX_H
 
 #include <linux/sizes.h>
 #include <config_distro_bootcmd.h>
@@ -23,7 +25,7 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"tispl.bin"
 #endif
 
-#if defined(CONFIG_TARGET_AM62A7_A53_EVM)
+#if defined(CONFIG_TARGET_AXON_AM62AX_A53)
 #define CONFIG_SPL_MAX_SIZE		SZ_1M
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE + SZ_4M)
 #else
@@ -58,9 +60,10 @@
 
 /* U-Boot general configuration */
 #define EXTRA_ENV_AM62A7_BOARD_SETTINGS					\
-	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"	\
+	"baseboard=wb\0"						\
+	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE "\0"		\
 	"findfdt="							\
-		"setenv name_fdt ${default_device_tree};"		\
+		"setenv name_fdt ${default_device_tree}-${baseboard}.dtb;" \
 		"setenv fdtfile ${name_fdt}\0"				\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
@@ -113,7 +116,7 @@
 	"get_kern_ospi_nand=ubifsload ${loadaddr} ${bootdir}/${name_kern}\0"	\
 	"get_fit_ospi_nand=ubifsload ${addr_fit} ${bootdir}/${name_fit}\0"
 
-#if defined(CONFIG_TARGET_AM62A7_A53_EVM)
+#if defined(CONFIG_TARGET_AXON_AM62AX_A53)
 #if defined(DEFAULT_RPROCS)
 #undef DEFAULT_RPROCS
 #endif
@@ -149,4 +152,4 @@
 #define CONFIG_SYS_MMC_ENV_PART		1
 #endif
 
-#endif /* __CONFIG_AM62A7_EVM_H */
+#endif /* __CONFIG_AXON_AM62AX_H */
