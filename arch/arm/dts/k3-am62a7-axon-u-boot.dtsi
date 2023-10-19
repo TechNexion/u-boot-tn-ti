@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Common AM62A EVM dts file for SPLs
  * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright 2023 TechNexion Ltd.
+ * Author: Ray Chang <ray.chang@technexion.com>
  */
 
 / {
@@ -32,10 +33,6 @@
 };
 
 &secure_proxy_main {
-	u-boot,dm-spl;
-};
-
-&dmsc {
 	u-boot,dm-spl;
 };
 
@@ -71,10 +68,6 @@
 	u-boot,dm-spl;
 };
 
-&main_uart1 {
-	u-boot,dm-spl;
-};
-
 &cbass_mcu {
 	u-boot,dm-spl;
 };
@@ -87,11 +80,23 @@
 	u-boot,dm-spl;
 };
 
-&wkup_uart0 {
+&main_gpio0 {
 	u-boot,dm-spl;
 };
 
-&main_gpio0 {
+&mcu_i2c0 {
+	u-boot,dm-spl;
+};
+
+&mcu_i2c0_pins_default {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0_pins_default {
 	u-boot,dm-spl;
 };
 
@@ -103,19 +108,23 @@
 	u-boot,dm-spl;
 };
 
-&main_i2c1 {
+&main_i2c2 {
 	u-boot,dm-spl;
 };
 
-&main_i2c1_pins_default {
+&main_i2c2_pins_default {
 	u-boot,dm-spl;
 };
 
-&exp1 {
+&ioexp22 {
 	u-boot,dm-spl;
 };
 
 &sdhci0 {
+	u-boot,dm-spl;
+};
+
+&main_mmc0_pins_default {
 	u-boot,dm-spl;
 };
 
@@ -124,10 +133,6 @@
 };
 
 &main_mmc1_pins_default {
-	u-boot,dm-spl;
-};
-
-&k3_reset {
 	u-boot,dm-spl;
 };
 
