@@ -17,6 +17,8 @@
 #include <fdt_support.h>
 #include <spl.h>
 
+#define PSRAMECC0_RAM_BOOT_DEVICE 0x00000000
+
 int board_init(void)
 {
 	return 0;
@@ -47,8 +49,32 @@ int board_fit_config_name_match(const char *name)
 #define CORE_VOLTAGE		0x80000000
 
 #ifdef CONFIG_BOARD_LATE_INIT
+static int am6_boot_dev(void) {
+    return readl(PSRAMECC0_RAM_BOOT_DEVICE);
+}
+
+void detect_boot_dev(void)
+{
+	switch (am6_boot_dev()) {
+	case BOOT_DEVICE_MMC1:
+		env_set_ulong("mmcdev", 0);
+		env_set("bootpart", "0:2");
+		printf("Boot Device: MMC\n");
+		break;
+	case BOOT_DEVICE_MMC2:
+		env_set_ulong("mmcdev", 1);
+		env_set("bootpart", "1:2");
+		printf("Boot Device: SD\n");
+		break;
+	default:
+		printf("Boot Device: Unknown\n");
+		break;
+	}
+}
+
 int board_late_init(void)
 {
+	detect_boot_dev();
 	return 0;
 }
 #endif
@@ -67,5 +93,8 @@ void spl_board_init(void)
 	val = readl(CTRLMMR_USB1_PHY_CTRL);
 	val &= ~(CORE_VOLTAGE);
 	writel(val, CTRLMMR_USB1_PHY_CTRL);
+
+	/* Store boot_device for U-Boot */
+	writel(spl_boot_device(), PSRAMECC0_RAM_BOOT_DEVICE);
 }
 #endif
