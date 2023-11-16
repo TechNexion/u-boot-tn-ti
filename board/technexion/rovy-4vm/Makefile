@@ -8,3 +8,4 @@
 #
 
 obj-y	+= rovy-4vm.o
+obj-$(CONFIG_SET_DFU_ALT_INFO) += ../../ti/common/k3_dfu.o

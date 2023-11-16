@@ -10,19 +10,19 @@ choice
 config TARGET_ROVY_4VM_A72
 	bool "TechNexion ROVY-4VM running on A72"
 	select ARM64
-	select SOC_K3_J721E
 	select BOARD_LATE_INIT
 	select SYS_DISABLE_DCACHE_OPS
+	select BINMAN
 
 config TARGET_ROVY_4VM_R5
 	bool "TechNexion ROVY-4VM running on R5"
 	select CPU_V7R
 	select SYS_THUMB_BUILD
-	select SOC_K3_J721E
 	select K3_LOAD_SYSFW
 	select RAM
 	select SPL_RAM
 	select K3_DDRSS
+	select BINMAN
 	imply SYS_K3_SPL_ATF
 
 endchoice
@@ -37,6 +37,9 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
        default "rovy-4vm"
+
+config ENV_SOURCE_FILE
+       default "j721e"
 
 source "board/ti/common/Kconfig"
 

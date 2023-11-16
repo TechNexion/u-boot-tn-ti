@@ -9,7 +9,6 @@
 
 #include <common.h>
 #include <env.h>
-#include <env_internal.h>
 #include <fdt_support.h>
 #include <generic-phy.h>
 #include <image.h>
@@ -18,12 +17,14 @@
 #include <net.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <spl.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <env_internal.h>
 #include "../drivers/ram/k3-ddrss/j721e/lpddr4_j721e_if.h"
 
 #define CTRLMMR_MCU_ADC1_CTRL (MCU_CTRL_MMR0_BASE + 0x40B4)
@@ -84,7 +85,7 @@ else
 	return 0;
 }
 
-ulong board_get_usable_ram_top(ulong total_size)
+phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 #ifdef CONFIG_PHYS_64BIT
 	/* Limit RAM used by U-Boot to the DDR low region */
@@ -98,13 +99,13 @@ ulong board_get_usable_ram_top(ulong total_size)
 int dram_init_banksize(void)
 {
 	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = 0x80000000;
 	gd->ram_size = 0x80000000;
 
 #ifdef CONFIG_PHYS_64BIT
 	/* Bank 1 declares the memory available in the DDR high region */
-	gd->bd->bi_dram[1].start = CONFIG_SYS_SDRAM_BASE1;
+	gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
 	if (is_8g()) {
 		gd->bd->bi_dram[1].size = 0x180000000;
 		gd->ram_size = 0x200000000;
@@ -120,10 +121,11 @@ int dram_init_banksize(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	/* Just empty function now - can't decide what to choose */
-	debug("%s: %s\n", __func__, name);
+	if (!strcmp(name, "k3-j721e-rovy-evm") ||
+	    !strcmp(name, "k3-j721e-r5-rovy-evm"))
+		return 0;
 
-	return 0;
+	return -1;
 }
 #endif
 
@@ -161,7 +163,7 @@ static void __maybe_unused detect_enable_hyperflash(void *blob)
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && (defined(CONFIG_TARGET_J7200_A72_EVM) || defined(CONFIG_TARGET_J7200_R5_EVM) || \
-					defined(CONFIG_TARGET_ROVY_4VM_A72) || defined(CONFIG_TARGET_ROVY_4VM_A5))
+					defined(CONFIG_TARGET_ROVY_4VM_A72) || defined(CONFIG_TARGET_ROVY_4VM_R5))
 void spl_perform_fixups(struct spl_image_info *spl_image)
 {
 	detect_enable_hyperflash(spl_image->fdt_addr);
@@ -197,7 +199,7 @@ void configure_serdes_sierra(void)
 		return;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(sierra_phy_provider),
+					  DM_DRIVER_GET(sierra_phy_provider),
 					  &dev);
 	if (ret) {
 		printf("Sierra init failed:%d\n", ret);
@@ -251,7 +253,7 @@ int board_late_init(void)
 
 	return 0;
 }
-
+#if 0
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	if (prio)
@@ -270,6 +272,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_UNKNOWN;
 	}
 }
+#endif
 #endif
 
 void spl_board_init(void)
