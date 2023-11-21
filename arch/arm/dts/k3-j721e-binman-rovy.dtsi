@@ -5,9 +5,105 @@
 
 #include "k3-binman.dtsi"
 
-#ifdef CONFIG_TARGET_ROVY_4VM_R5
-
 &binman {
+	custMpk {
+		filename = "custMpk.pem";
+		blob-ext {
+			filename = "../../../board/ti/keys/custMpk.pem";
+		};
+	};
+	ti-degenerate-key {
+		filename = "ti-degenerate-key.pem";
+		blob-ext {
+			filename = "../../../board/ti/keys/ti-degenerate-key.pem";
+		};
+	};
+};
+#ifdef CONFIG_TARGET_ROVY_4VM_R5
+&binman {
+	board-cfg {
+		filename = "board-cfg.bin";
+		bcfg_yaml: ti-board-config {
+			config = "../../../board/ti/j721e/board-cfg.yaml";
+			schema = "../../../board/ti/common/schema.yaml";
+		};
+	};
+	pm-cfg {
+		filename = "pm-cfg.bin";
+		rcfg_yaml: ti-board-config {
+			config = "../../../board/ti/j721e/pm-cfg.yaml";
+			schema = "../../../board/ti/common/schema.yaml";
+		};
+	};
+	rm-cfg {
+		filename = "rm-cfg.bin";
+		pcfg_yaml: ti-board-config {
+			config = "../../../board/ti/j721e/rm-cfg.yaml";
+			schema = "../../../board/ti/common/schema.yaml";
+		};
+	};
+	sec-cfg {
+		filename = "sec-cfg.bin";
+		scfg_yaml: ti-board-config {
+			config = "../../../board/ti/j721e/sec-cfg.yaml";
+			schema = "../../../board/ti/common/schema.yaml";
+		};
+	};
+	combined-tifs-cfg {
+		filename = "combined-tifs-cfg.bin";
+		ti-board-config {
+			bcfg_yaml_tifs: board-cfg {
+				config = "../../../board/ti/j721e/board-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+			scfg_yaml_tifs: sec-cfg {
+				config = "../../../board/ti/j721e/sec-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+			pcfg_yaml_tifs: pm-cfg {
+				config = "../../../board/ti/j721e/pm-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+			rcfg_yaml_tifs: rm-cfg {
+				config = "../../../board/ti/j721e/rm-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+		};
+	};
+	combined-dm-cfg {
+		filename = "combined-dm-cfg.bin";
+		ti-board-config {
+			pcfg_yaml_dm: pm-cfg {
+				config = "../../../board/ti/j721e/pm-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+			rcfg_yaml_dm: rm-cfg {
+				config = "../../../board/ti/j721e/rm-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+		};
+	};
+	combined-sysfw-cfg {
+		filename = "combined-sysfw-cfg.bin";
+		ti-board-config {
+			board-cfg {
+				config = "../../../board/ti/j721e/board-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+			sec-cfg {
+				config = "../../../board/ti/j721e/sec-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+			pm-cfg {
+				config = "../../../board/ti/j721e/pm-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+			rm-cfg {
+				config = "../../../board/ti/j721e/rm-cfg.yaml";
+				schema = "../../../board/ti/common/schema.yaml";
+			};
+		};
+	};
 	tiboot3-j721e-gp-rovy.bin {
 		filename = "tiboot3-j721e-gp-rovy.bin";
 		symlink = "tiboot3.bin";
