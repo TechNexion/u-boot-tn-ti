@@ -39,7 +39,7 @@ config SYS_CONFIG_NAME
        default "rovy-4vm"
 
 config ENV_SOURCE_FILE
-       default "j721e"
+       default "rovy-4vm"
 
 source "board/ti/common/Kconfig"
 
