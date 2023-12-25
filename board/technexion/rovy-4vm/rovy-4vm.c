@@ -37,35 +37,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/**********************************************
-* Revision Detection
-*
-* DDR_TYPE_DET_1   DDR_TYPE_DET_0
-* MCU_ADC1_AIN1    MCU_ADC1_AIN0
-*     1                1           8GB LPDDR4
-*     0                1           4GB LPDDR4
-***********************************************/
-enum {
-	LPDDR4_8GB = 0x3,
-	LPDDR4_4GB = 0x1,
-};
-
-static bool is_8g(void)
-{
-	u32 val;
-
-	/* Configure MCU_ADC1 as GPI */
-	if(!(readl(CTRLMMR_MCU_ADC1_CTRL) & GPI_MODE_EN))
-		writel(val | GPI_MODE_EN, CTRLMMR_MCU_ADC1_CTRL);
-
-	val = (readl(GPIO_IN_DATA45) & (MCU_ADC1_AIN0 | MCU_ADC1_AIN1)) >> 12;
-
-	if(val == LPDDR4_8GB)
-		return true;
-	else
-		return false;
-}
-
 int board_init(void)
 {
 	return 0;
@@ -74,10 +45,7 @@ int board_init(void)
 int dram_init(void)
 {
 #ifdef CONFIG_PHYS_64BIT
-if (is_8g())
 	gd->ram_size = 0x200000000;
-else
-	gd->ram_size = 0x100000000;
 #else
 	gd->ram_size = 0x80000000;
 #endif
@@ -106,13 +74,8 @@ int dram_init_banksize(void)
 #ifdef CONFIG_PHYS_64BIT
 	/* Bank 1 declares the memory available in the DDR high region */
 	gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
-	if (is_8g()) {
-		gd->bd->bi_dram[1].size = 0x180000000;
-		gd->ram_size = 0x200000000;
-	} else {
-		gd->bd->bi_dram[1].size = 0x80000000;
-		gd->ram_size = 0x100000000;
-	}
+	gd->bd->bi_dram[1].size = 0x180000000;
+	gd->ram_size = 0x200000000;
 #endif
 
 	return 0;
@@ -126,31 +89,6 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 
 	return -1;
-}
-#endif
-
-#if defined(CONFIG_SPL_BUILD)
-struct reginitdata {
-	u32 ctl_regs[LPDDR4_INTR_CTL_REG_COUNT];
-	u16 ctl_regs_offs[LPDDR4_INTR_CTL_REG_COUNT];
-	u32 pi_regs[LPDDR4_INTR_PHY_INDEP_REG_COUNT];
-	u16 pi_regs_offs[LPDDR4_INTR_PHY_INDEP_REG_COUNT];
-	u32 phy_regs[LPDDR4_INTR_PHY_REG_COUNT];
-	u16 phy_regs_offs[LPDDR4_INTR_PHY_REG_COUNT];
-};
-
-int k3_lpddr4_board_update(struct reginitdata *reginit_data)
-{
-	if (is_8g()) {
-		reginit_data->ctl_regs[268] = 0x00000000;
-		reginit_data->ctl_regs[270] = 0x00001FFF;
-		reginit_data->ctl_regs[271] = 0x3FFF2000;
-		reginit_data->ctl_regs[272] = 0x03FF0000;
-		reginit_data->ctl_regs[273] = 0x000103FF;
-		reginit_data->pi_regs[73] = 0x00080000;
-	}
-
-	return 0;
 }
 #endif
 
