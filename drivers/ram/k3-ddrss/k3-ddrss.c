@@ -497,12 +497,6 @@ void populate_data_array_from_dt(struct k3_ddrss_desc *ddrss,
 		reginit_data->phy_regs_offs[i] = i;
 }
 
-/* This function allows boards to change DDR parameters */
-__weak int k3_lpddr4_board_update(struct reginitdata *reginit_data)
-{
-	return 0;
-}
-
 void k3_lpddr4_hardware_reg_init(struct k3_ddrss_desc *ddrss)
 {
 	u32 status = 0U;
@@ -512,12 +506,9 @@ void k3_lpddr4_hardware_reg_init(struct k3_ddrss_desc *ddrss)
 
 	populate_data_array_from_dt(ddrss, &reginitdata);
 
-	status = k3_lpddr4_board_update(&reginitdata);
-
-	if (!status)
-		status = driverdt->writectlconfig(pd, reginitdata.ctl_regs,
-						  reginitdata.ctl_regs_offs,
-						  LPDDR4_INTR_CTL_REG_COUNT);
+	status = driverdt->writectlconfig(pd, reginitdata.ctl_regs,
+					  reginitdata.ctl_regs_offs,
+					  LPDDR4_INTR_CTL_REG_COUNT);
 	if (!status)
 		status = driverdt->writephyindepconfig(pd, reginitdata.pi_regs,
 						       reginitdata.pi_regs_offs,
