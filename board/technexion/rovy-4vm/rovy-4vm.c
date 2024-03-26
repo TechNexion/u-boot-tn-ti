@@ -191,7 +191,8 @@ int board_late_init(void)
 
 	return 0;
 }
-#if 0
+
+#ifndef CONFIG_SPL_BUILD
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	if (prio)
