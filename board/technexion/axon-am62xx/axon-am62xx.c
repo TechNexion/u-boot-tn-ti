@@ -18,9 +18,16 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <dm/uclass.h>
-#include "../../ti/common/k3-ddr-init.h"
+#include "../drivers/ram/k3-ddrss/am64/lpddr4_am64_if.h"
 
 #define PSRAMECC0_RAM_BOOT_DEVICE 0x00000000
+
+#define MCU_PADCFG_CTRL0_CFG0_PADCONFIG10	0x04084028
+#define RXACTIVE				BIT(18)
+#define MUXMODE_7				0x07
+#define GPIO_IN_DATA01				0x04201020
+#define MCU_GPIO0_9				BIT(9)
+#define MCU_GPIO0_10				BIT(10)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,8 +54,93 @@ int splash_screen_prepare(void)
 }
 #endif
 
+/**********************************************
+* Revision Detection
+*
+* DDR_TYPE_DET_1   DDR_TYPE_DET_0
+* GPIO0_10          GPIO0_9
+*     0                1           4GB DDR4
+*     1                0           2GB DDR4
+*     0                0           1GB DDR4
+***********************************************/
+enum {
+	DDR4_4GB = 0x1,
+	DDR4_2GB = 0x2,
+	DDR4_1GB = 0x0,
+};
+
 int board_init(void)
 {
+	return 0;
+}
+
+int dram_get_ddrcode(void)
+{
+	u32 val;
+
+	val = readl(MCU_PADCFG_CTRL0_CFG0_PADCONFIG10);
+	if(!(val & (RXACTIVE | MUXMODE_7)))
+		writel(val | RXACTIVE | MUXMODE_7, MCU_PADCFG_CTRL0_CFG0_PADCONFIG10);
+	return ((readl(GPIO_IN_DATA01) & (MCU_GPIO0_9 | MCU_GPIO0_10)) >> 9);
+}
+
+int dram_init(void)
+{
+#ifdef CONFIG_PHYS_64BIT
+	switch (dram_get_ddrcode()) {
+		case DDR4_1GB:
+			gd->ram_size = 0x40000000;
+			break;
+		case DDR4_2GB:
+			gd->ram_size = 0x80000000;
+			break;
+		case DDR4_4GB:
+			gd->ram_size = 0x100000000;
+			break;
+		default:
+			puts("Unknown DDR type!!!\n");
+			break;
+	}
+#else
+	gd->ram_size = 0x80000000;
+#endif
+	return 0;
+}
+
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
+{
+#ifdef CONFIG_PHYS_64BIT
+	/* Limit RAM used by U-Boot to the DDR low region */
+	if (gd->ram_top > 0x100000000)
+		return 0x100000000;
+#endif
+
+	return gd->ram_top;
+}
+
+int dram_init_banksize(void)
+{
+	int ddrcode = dram_get_ddrcode();
+
+	/* Bank 0 declares the memory available in the DDR low region */
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+	if (ddrcode == DDR4_1GB) {
+		gd->bd->bi_dram[0].size = 0x40000000;
+		gd->ram_size = 0x40000000;
+	} else {
+		gd->bd->bi_dram[0].size = 0x80000000;
+		gd->ram_size = 0x80000000;
+	}
+
+#ifdef CONFIG_PHYS_64BIT
+	/* Bank 1 declares the memory available in the DDR high region */
+	gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
+	if (ddrcode == DDR4_4GB) {
+		gd->bd->bi_dram[1].size = 0x80000000;
+		gd->ram_size = 0x100000000;
+	}
+#endif
+
 	return 0;
 }
 
@@ -116,12 +208,31 @@ void spl_board_init(void)
 	writel(spl_boot_device(), PSRAMECC0_RAM_BOOT_DEVICE);
 }
 
-void spl_perform_fixups(struct spl_image_info *spl_image)
+struct reginitdata {
+	u32 ctl_regs[LPDDR4_INTR_CTL_REG_COUNT];
+	u16 ctl_regs_offs[LPDDR4_INTR_CTL_REG_COUNT];
+	u32 pi_regs[LPDDR4_INTR_PHY_INDEP_REG_COUNT];
+	u16 pi_regs_offs[LPDDR4_INTR_PHY_INDEP_REG_COUNT];
+	u32 phy_regs[LPDDR4_INTR_PHY_REG_COUNT];
+	u16 phy_regs_offs[LPDDR4_INTR_PHY_REG_COUNT];
+};
+
+int k3_lpddr4_board_update(struct reginitdata *reginit_data)
 {
-	if (IS_ENABLED(CONFIG_K3_DDRSS) && IS_ENABLED(CONFIG_K3_INLINE_ECC))
-		fixup_ddr_driver_for_ecc(spl_image);
-	else
-		fixup_memory_node(spl_image);
+	switch (dram_get_ddrcode()) {
+		case DDR4_1GB:
+			reginit_data->ctl_regs[317] = 0x00000101;
+			reginit_data->ctl_regs[318] = 0x1FFF0000;
+			reginit_data->pi_regs[77] = 0x04010100;
+			break;
+		case DDR4_4GB:
+			reginit_data->ctl_regs[317] = 0xFFFFFEFF;
+			reginit_data->ctl_regs[318] = 0x7FFF0000;
+			reginit_data->pi_regs[77] = 0x03FF0100;
+			break;
+	}
+
+	return 0;
 }
 #endif
 

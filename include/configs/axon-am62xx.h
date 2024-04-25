@@ -11,6 +11,9 @@
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
+/* DDR Configuration */
+#define CFG_SYS_SDRAM_BASE1          0x880000000
+
 /* NAND Driver config */
 #define CFG_SYS_NAND_BASE            0x51000000
 
