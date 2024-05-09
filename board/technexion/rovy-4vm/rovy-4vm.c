@@ -25,7 +25,8 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <env_internal.h>
-#include "../drivers/ram/k3-ddrss/j721e/lpddr4_j721e_if.h"
+#include "../common/tn_eeprom.h"
+
 
 #define CTRLMMR_MCU_ADC1_CTRL (MCU_CTRL_MMR0_BASE + 0x40B4)
 #define GPI_MODE_EN 			BIT(16)
@@ -189,6 +190,8 @@ int board_late_init(void)
 	configure_serdes_sierra();
 	detect_boot_dev();
 
+	tn_setup_mac_address();
+
 	return 0;
 }
 
@@ -219,4 +222,3 @@ void spl_board_init(void)
 	/* Store boot_device for U-Boot */
 	writel(spl_boot_device(), PSRAMECC0_RAM_BOOT_DEVICE);
 }
-
