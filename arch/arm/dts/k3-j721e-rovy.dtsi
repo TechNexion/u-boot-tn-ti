@@ -16,6 +16,10 @@
 		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
 	};
 
+	aliases {
+		eeprom0 = &eeprom_som;
+	};
+
 	reserved_memory: reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -184,6 +188,20 @@
 			J721E_WKUP_IOPAD(0x0028, PIN_INPUT, 0)  /* MCU_OSPI0_D7 */
 			J721E_WKUP_IOPAD(0x002c, PIN_OUTPUT, 0) /* MCU_OSPI0_CSn0 */
 		>;
+	};
+};
+
+&wkup_i2c0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_i2c0_pins_default>;
+	clock-frequency = <400000>;
+
+	eeprom_som:eeprom@50 {
+		compatible = "atmel,24c512";
+		reg = <0x50>;
+		pagesize = <128>;
+		status = "okay";
 	};
 };
 
