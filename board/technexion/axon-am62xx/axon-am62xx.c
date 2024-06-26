@@ -22,6 +22,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include "../drivers/ram/k3-ddrss/am64/lpddr4_am64_if.h"
+#include "../common/tn_eeprom.h"
 
 #define PSRAMECC0_RAM_BOOT_DEVICE 0x00000000
 
@@ -239,6 +240,7 @@ void detect_boot_dev(void)
 int board_late_init(void)
 {
 	detect_boot_dev();
+	tn_setup_mac_address();
 	return 0;
 }
 #endif

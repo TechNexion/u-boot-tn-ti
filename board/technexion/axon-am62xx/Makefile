@@ -9,3 +9,4 @@
 #
 
 obj-y	+= axon-am62xx.o
+obj-y += ../common/tn_eeprom.o
