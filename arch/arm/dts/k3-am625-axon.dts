@@ -27,6 +27,7 @@
 		usb1 = &usb1;
 		spi0 = &ospi0;
 		remoteproc0 = &mcu_m4fss;
+		eeprom0 = &eeprom_som;
 	};
 
 	chosen {
@@ -531,6 +532,13 @@
 			gpios = <3 GPIO_ACTIVE_HIGH>;
 			output-high;
 		};
+	};
+
+	eeprom_som:eeprom@53 {
+		compatible = "atmel,24c02";
+		reg = <0x53>;
+		pagesize = <8>;
+		status = "okay";
 	};
 };
 
