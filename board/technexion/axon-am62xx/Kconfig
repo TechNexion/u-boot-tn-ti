@@ -15,6 +15,7 @@ config SYS_CONFIG_NAME
        default "axon-am62xx"
 
 source "board/ti/common/Kconfig"
+source "board/technexion/common/Kconfig"
 
 endif
 

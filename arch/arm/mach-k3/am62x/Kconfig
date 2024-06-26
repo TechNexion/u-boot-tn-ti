@@ -69,6 +69,7 @@ config TARGET_AXON_AM62XX_A53
 	select BINMAN
 	select OF_SYSTEM_SETUP
 	imply TI_COMMON_CMD_OPTIONS
+	imply TN_BOARD_EEPROM
 
 config TARGET_AXON_AM62XX_R5
 	bool "TechNexion AXON-AM62XX running on R5"

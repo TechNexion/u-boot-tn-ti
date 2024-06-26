@@ -19,6 +19,7 @@
 #include <asm/arch/hardware.h>
 #include <dm/uclass.h>
 #include "../drivers/ram/k3-ddrss/am64/lpddr4_am64_if.h"
+#include "../common/tn_eeprom.h"
 
 #define PSRAMECC0_RAM_BOOT_DEVICE 0x00000000
 
@@ -181,6 +182,7 @@ int board_late_init(void)
 		env_set("fdtfile", fdtfile);
 	}
 	detect_boot_dev();
+	tn_setup_mac_address();
 	return 0;
 }
 #endif
