@@ -1,13 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Configuration header file for K3 AM625 SoC family
+ * Configuration header file for AXON-AM62XX SoM family
  *
- * Copyright (C) 2020-2022 Texas Instruments Incorporated - https://www.ti.com/
- *	Suman Anna <s-anna@ti.com>
+ * Copyright (C) 2024 TechNexion Ltd.
  */
 
-#ifndef __CONFIG_AM625_EVM_H
-#define __CONFIG_AM625_EVM_H
+#ifndef __CONFIG_AXON_AM62XX_H
+#define __CONFIG_AXON_AM62XX_H
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
@@ -28,4 +27,4 @@
 #define CFG_SYS_NAND_ECCBYTES        14
 /*-- end NAND config --*/
 
-#endif /* __CONFIG_AM625_EVM_H */
+#endif /* __CONFIG_AXON_AM62XX_H */

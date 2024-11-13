@@ -1,8 +1,11 @@
-AM62x BOARD
-M:	Dave Gerlach <d-gerlach@ti.com>
-M:	Tom Rini <trini@konsulko.com>
+AXON-AM62XX SoM
+M:	Ray Chang <ray.chang@technexion.com>
 S:	Maintained
-F:	board/ti/am62x/
-F:	include/configs/am62x_evm.h
-F:	configs/am62x_evm_r5_defconfig
-F:	configs/am62x_evm_a53_defconfig
+F:	board/technexion/axon-am62xx/
+F:	include/configs/axon-am62xx.h
+F:	configs/axon-am62xx_r5_defconfig
+F:	configs/axon-am62xx_a53_defconfig
+F:	arch/arm/dts/k3-am625-r5-axon.dts
+F:	arch/arm/dts/k3-am625-axon.dts
+F:	arch/arm/dts/k3-am625-axon-binman.dtsi
+F:	arch/arm/dts/k3-am625-axon-u-boot.dtsi

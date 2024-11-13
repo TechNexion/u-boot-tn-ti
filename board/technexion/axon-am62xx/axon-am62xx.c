@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Board specific initialization for AM62x platforms
+ * Board specific initialization for AXON-AM62XX platforms
  *
- * Copyright (C) 2020-2022 Texas Instruments Incorporated - https://www.ti.com/
- *	Suman Anna <s-anna@ti.com>
+ * Copyright (C) 2024 TechNexion Ltd.
  *
  */
 
@@ -20,10 +19,10 @@
 #include <asm/arch/hardware.h>
 #include <dm/uclass.h>
 
-#include "../common/board_detect.h"
-#include "../common/fdt_ops.h"
+#include "../../ti/common/board_detect.h"
+#include "../../ti/common/fdt_ops.h"
 
-#include "../common/k3-ddr-init.h"
+#include "../../ti/common/k3-ddr-init.h"
 
 #define board_is_am62x_skevm()  (board_ti_k3_is("AM62-SKEVM") || \
 				 board_ti_k3_is("AM62B-SKEVM"))
