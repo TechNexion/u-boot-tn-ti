@@ -1449,6 +1449,8 @@ dtb-$(CONFIG_SOC_K3_AM625) += k3-am625-sk.dtb \
 			      k3-am625-verdin-r5.dtb \
 			      k3-am625-phyboard-lyra-rdk.dtb \
 			      k3-am625-r5-phycore-som-2gb.dtb \
+			      k3-am625-axon.dtb \
+			      k3-am625-r5-axon.dtb \
 			      k3-am62-lp-sk.dtb \
 			      k3-am62-r5-lp-sk.dtb
 
