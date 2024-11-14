@@ -1,0 +1,5 @@
+config TN_BOARD_EEPROM
+	bool "Support for EEPROM information for TechNexion platforms"
+	help
+	   Support for specific format and information on TechNexion's
+	   SoM which have I2C based EEPROM
