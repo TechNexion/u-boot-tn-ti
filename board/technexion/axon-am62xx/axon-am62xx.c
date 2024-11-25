@@ -53,6 +53,16 @@ int board_init(void)
 #if CONFIG_IS_ENABLED(BOARD_LATE_INIT)
 int board_late_init(void)
 {
+	char fdtfile[50];
+	char *baseboard;
+
+	if (!env_get("fdtfile")) {
+		baseboard = env_get("baseboard");
+		snprintf(fdtfile, sizeof(fdtfile), "%s/%s-%s.dtb",
+			CONFIG_TI_FDT_FOLDER_PATH, CONFIG_DEFAULT_DEVICE_TREE, baseboard);
+
+		env_set("fdtfile", fdtfile);
+	}
 	return 0;
 }
 #endif
